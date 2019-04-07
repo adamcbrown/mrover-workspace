@@ -1,9 +1,10 @@
 import sys
+import os
 from configparser import ConfigParser
 from subprocess import Popen, PIPE
 from rover_common import aiolcm
 from rover_common.aiohelper import run_coroutines
-from rover_msgs import PiCamera, PiSettings
+from rover_msgs import PiCamera, PiSettings, PiPicture
 import gi
 gi.require_version("Gst", "1.0")
 from gi.repository import Gst # noqa
@@ -121,6 +122,16 @@ def settings_callback(channel, msg):
     write_settings()
 
 
+def picture_callback(channel, msg):
+    data = PiPicture.decode(msg)
+    if index != data.index:
+        return
+    stop_pipeline()
+    os.system('raspistill -o out.jpg')
+    start_pipeline()
+    os.system('scp out.jpg mrover@10.0.0.1:{}.jpg'.format(data.timestamp))
+
+
 def main():
     global index
     index = int(sys.argv[1])
@@ -130,5 +141,6 @@ def main():
 
     lcm_.subscribe("/pi_camera", camera_callback)
     lcm_.subscribe("/pi_settings", settings_callback)
+    lcm_.subscribe("/pi_picture", picture_callback)
 
     run_coroutines(lcm_.loop())
