@@ -48,10 +48,23 @@ def camera_callback(channel, msg):
     else:
         stop_pipeline()
 
+def picture_callback(channel, msg):
+    data = TakePicture.decode(msg)
+    if index != data.index:
+        return
+    stop_pipeline()
+    os.system( ('ffmpeg -f video4linux2 -i'
+                '/dev/v4l/by-id/usb-0c45_USB_camera-video-index0'
+                '-vframes 1 /home/pi/out-mic.jpg' ) )
+    start_pipeline()
+    os.system('scp -l 2000 /home/pi/out-mic.jpg mrover@10.0.0.1:{}.jpg'
+              .format(round(time.time() * 1000)))
+
 
 def main():
     Gst.init(None)
 
     lcm_.subscribe("/microscope", camera_callback)
+    lcm_.subscribe("/take_picture", picture_callback)
 
     run_coroutines(lcm_.loop())

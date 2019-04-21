@@ -5,7 +5,7 @@ from configparser import ConfigParser
 from subprocess import Popen, PIPE
 from rover_common import aiolcm
 from rover_common.aiohelper import run_coroutines
-from rover_msgs import PiCamera, PiSettings, PiPicture
+from rover_msgs import PiCamera, PiSettings, TakePicture
 import gi
 gi.require_version("Gst", "1.0")
 from gi.repository import Gst # noqa
@@ -129,7 +129,7 @@ def settings_callback(channel, msg):
 
 
 def picture_callback(channel, msg):
-    data = PiPicture.decode(msg)
+    data = TakePicture.decode(msg)
     if index != data.index:
         return
     stop_pipeline()
@@ -148,6 +148,6 @@ def main():
 
     lcm_.subscribe("/pi_camera", camera_callback)
     lcm_.subscribe("/pi_settings", settings_callback)
-    lcm_.subscribe("/pi_picture", picture_callback)
+    lcm_.subscribe("/take_picture", picture_callback)
 
     run_coroutines(lcm_.loop())

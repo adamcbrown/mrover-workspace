@@ -1,0 +1,5 @@
+package rover_msgs;
+
+struct TakePicture {
+    int8_t index; //-1 refers to microscope camera
+}

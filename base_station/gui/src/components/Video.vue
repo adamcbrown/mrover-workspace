@@ -79,8 +79,8 @@
       },
 
       takePicture: function () {
-        this.$parent.$parent.publish("/pi_picture", {
-          type: 'PiPicture',
+        this.$parent.$parent.publish("/take_picture", {
+          type: 'TakePicture',
           index: this.pi_index
         })
       }
